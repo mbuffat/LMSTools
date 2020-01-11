@@ -2,11 +2,14 @@
 Simple python class definitions for interacting with Logitech Media Server.
 This code uses the JSON interface.
 """
-import urllib2
+import urllib.request
 import json
+try:
+    from .player import LMSPlayer
+except:
+    from player import LMSPlayer
 
-from .player import LMSPlayer
-
+DEBUG=False
 
 class LMSConnectionError(Exception):
     pass
@@ -32,7 +35,7 @@ class LMSServer(object):
         self.web = "http://{h}:{p}/".format(h=host, p=port)
         self.url = "http://{h}:{p}/jsonrpc.js".format(h=host, p=port)
 
-    def request(self, player="-", params=None):
+    def request(self, player="", params=None):
         """
         :type player: (str)
         :param player: MAC address of a connected player. Alternatively, "-" can be used for server level requests.
@@ -40,27 +43,31 @@ class LMSServer(object):
         :param params: Request command
 
         """
-        req = urllib2.Request(self.url)
-        req.add_header('Content-Type', 'application/json')
+        if DEBUG: print("server request: ",self.url,player,params)
 
         if type(params) == str:
             params = params.split()
-
         cmd = [player, params]
 
         data = {"id": self.id,
                 "method": "slim.request",
                 "params": cmd}
-
+        # So now we convert the dictionary data to a string
+        headers = {'Content-Type':'application/json'}
+        params = json.dumps(data, sort_keys=True, indent=4).encode('utf-8')
+        req    = urllib.request.Request(self.url,params,headers)
+        #req.add_header('Content-Type', 'application/json')
         try:
-            response = urllib2.urlopen(req, json.dumps(data))
+            resp = urllib.request.urlopen(req)
+            response = json.loads(resp.read().decode('utf-8'))
             self.id += 1
-            return json.loads(response.read())["result"]
+            return response['result']
 
-        except urllib2.URLError:
+        except urllib.error.URLError:
             raise LMSConnectionError("Could not connect to server.")
 
         except:
+            print("Erreur LMS server request")
             return None
 
     def get_players(self):
@@ -214,7 +221,6 @@ class LMSServer(object):
         """
         if self._version is None:
             self._version = self.request(params="version ?")["_version"]
-
         return self._version
 
     def rescan(self, mode='fast'):

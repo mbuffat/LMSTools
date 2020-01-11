@@ -4,18 +4,22 @@
 #
 # This set of tools was inspired by the PyLMS library.
 
-from tags import LMSTags as tags
-from utils import LMSUtils
+try:
+    from .tags import LMSTags
+    from .utils import LMSUtils
+except:
+    from tags import LMSTags
+    from utils import LMSUtils
 
 
-DETAILED_TAGS = [tags.ARTIST,
-                 tags.COVERID,
-                 tags.DURATION,
-                 tags.COVERART,
-                 tags.ARTWORK_URL,
-                 tags.ALBUM,
-                 tags.REMOTE,
-                 tags.ARTWORK_TRACK_ID]
+DETAILED_TAGS = [LMSTags.ARTIST,
+                 LMSTags.COVERID,
+                 LMSTags.DURATION,
+                 LMSTags.COVERART,
+                 LMSTags.ARTWORK_URL,
+                 LMSTags.ALBUM,
+                 LMSTags.REMOTE,
+                 LMSTags.ARTWORK_TRACK_ID]
 
 
 class LMSPlayer(LMSUtils):
