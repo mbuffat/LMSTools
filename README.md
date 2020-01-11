@@ -1,4 +1,4 @@
-# LMSTools ython3 library for LMS server & player
+# LMSTools python3 library for LMS server & player
 
 This is a clone of the python library for a Logitech Media server
 
